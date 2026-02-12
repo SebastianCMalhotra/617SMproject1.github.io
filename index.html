@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-
-<!--Load d3.js-->
 <html>
     <head>
-        <script src ="https://d3js.org/d3.v6.js"></script>
+        <script src="https://d3js.org/d3.v6.js"></script>
     </head>
     <body>
         <div id="chart"></div>
         <script>
-            const margin = {top: 50, right: 50, bottom: 50, left:50},
-                width = 800 - margin.left - margin.right;
+            const margin = {top: 50, right: 50, bottom: 50, left: 50},
+                width = 800 - margin.left - margin.right,
                 height = 600 - margin.top - margin.bottom;
+
             const svg = d3.select("#chart")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
@@ -22,34 +21,38 @@
             d3.csv("DearDataRedux - Question2.csv", function(d){
                 return {
                     Date: +d["Date"],
-                    Cups: d['Cups']
+                    Cups: +d["Cups"] 
                 };
             }).then(function(data) {
                 console.log(data);
 
                 const x = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.Date)])
-                .range([0,width]);
+                    .domain([0, d3.max(data, d => d.Date)])
+                    .range([0, width]);
             
                 const y = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.Cups)])
-                .range([height,0]);
+                    .domain([0, d3.max(data, d => d.Cups)])
+                    .range([height, 0]);
                 
                 // Add X axis
                 svg.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(x));
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x));
                 
                 // Add Y Axis
                 svg.append("g")
-                .call(d3.axisLeft(y));  
-                
-                const color = d3.scaleSequential()
-                .domain(d3.extent(data))
+                    .call(d3.axisLeft(y));  
 
-            
+                svg.append('g')
+                    .selectAll("circle")
+                    .data(data)
+                    .join("circle")
+                        .attr("cx", d => x(d.Date))
+                        .attr("cy", d => y(d.Cups))
+                        .attr("r", 7)
+                        .style("fill", "steelblue")
+                        .style("opacity", 0.7);
+            });
         </script>
     </body>
 </html>
-
-

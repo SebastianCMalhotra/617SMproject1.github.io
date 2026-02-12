@@ -19,22 +19,20 @@
                 .append("g")
                 .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-            d3.csv("global_development_filtered.csv", function(d){
+            d3.csv("DearDataRedux - Question2.csv", function(d){
                 return {
-                    country: d["Country"],
-                    birth: +d['Data.Health.Birth Rate'],
-                    death: +d['Data.Health.Death Rate'],
-                    population: +['Data.Health.Total Population']
+                    Date: +d["Date"],
+                    Cups: d['Cups']
                 };
             }).then(function(data) {
                 console.log(data);
 
                 const x = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.birth)])
+                .domain([0, d3.max(data, d => d.Date)])
                 .range([0,width]);
             
                 const y = d3.scaleLinear()
-                .domain([0, d3.max(data, d => d.death)])
+                .domain([0, d3.max(data, d => d.Cups)])
                 .range([height,0]);
                 
                 // Add X axis
@@ -49,17 +47,9 @@
                 const color = d3.scaleSequential()
                 .domain(d3.extent(data))
 
-                svg.append('g')
-                .selectAll("dot")
-                .data(data)
-                .join("circle")
-                    .attr("r", 5)
-                    .attr("cx", function(d) {return x(d.birth);})
-                    .attr("cy", function(d) {return y(d.death);})
-                    .style("fill", "lightblue")
-            })
             
         </script>
     </body>
 </html>
+
 

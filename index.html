@@ -44,15 +44,16 @@
                     .call(d3.axisLeft(y));  
 
                 svg.append('g')
-                    .selectAll("circle")
+                    .selectAll("image")
                     .data(data)
-                    .join("circle")
-                        .attr("cx", d => x(d.Date))
-                        .attr("cy", d => y(d.Cups))
-                        .attr("r", 7)
-                        .style("fill", "steelblue")
-                        .style("opacity", 0.7);
-            });
+                    .join("image")
+                        .attr("xlink:href", "mug.png")
+                        .attr("x", d => x(d.Date) - 15) 
+                        .attr("y", d => y(d.Cups) - 15)
+                        .attr("width", 30) 
+                        .attr("height", 30);
+                });
         </script>
     </body>
 </html>
+

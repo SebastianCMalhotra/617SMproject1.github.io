@@ -13,6 +13,7 @@
                 flex-direction: column;
                 align-items: center;
                 padding-top: 20px;
+                margin-left: 40px;
             }
             #chart {
                 background: #fffef9;
@@ -74,66 +75,50 @@
                     .style("fill", d => colorScale(d.Cups))
                     .style("stroke", "#eee")
                     .on("mouseover", function(event, d) {
-                        d3.select(this).transition().duration(100)
-                            .style("stroke", "#3e2723")
-                            .style("stroke-width", "2px");
+                        const rect = d3.select(this).raise();
+                        const mug = svg.selectAll(".mug-image").filter(m => m.Date === d.Date).raise();
                 
-                        svg.selectAll(".mug-image")
-                           .filter(mugData => mugData.Date === d.Date)
-                           .transition().duration(100)
-                           .attr("transform", "scale(1.2)");
+                        const expansion = 8;
+                        const xPos = d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize;
+                        const yPos = d.Date.getDay() * cellSize;
                 
-                        tooltip.transition().duration(200).style("opacity", .9);
-                        tooltip.html(`${d3.timeFormat("%B %d")(d.Date)}<br/>${d.Cups} Cups`)
-                               .style("left", (event.pageX + 10) + "px")
-                               .style("top", (event.pageY - 28) + "px");
+                        rect.transition().duration(150)
+                            .attr("width", cellSize + expansion)
+                            .attr("height", cellSize + expansion)
+                            .attr("x", xPos - expansion / 2)
+                            .attr("y", yPos - expansion / 2)
+                            .style("stroke", "#4e342e")
+                            .style("stroke-width", "2px")
+                            .style("filter", "drop-shadow(2px 4px 6px rgba(0,0,0,0.2))");
+                
+                        mug.transition().duration(150)
+                           .attr("transform", "scale(1.4)");
+                
+                        tooltip.transition().duration(100).style("opacity", 1);
+                        tooltip.html(`<strong>${d3.timeFormat("%B %d")(d.Date)}</strong><br/>${d.Cups} Cups`)
+                               .style("left", (event.pageX + 15) + "px")
+                               .style("top", (event.pageY - 20) + "px");
                     })
-                    .on("mouseover", function(event, d) {
-                            const rect = d3.select(this);
-                            const originalX = +rect.attr("x");
-                            const originalY = +rect.attr("y");
-                            const expansion = 6;
-                        
-                            rect.transition().duration(200)
-                                .attr("width", cellSize + expansion)
-                                .attr("height", cellSize + expansion)
-                                .attr("x", originalX - expansion / 2)
-                                .attr("y", originalY - expansion / 2)
-                                .style("stroke", "#4e342e")
-                                .style("stroke-width", "2px")
-                                .style("filter", "drop-shadow(2px 4px 6px rgba(0,0,0,0.2))");
-                        
-                            svg.selectAll(".mug-image")
-                               .filter(m => m.Date === d.Date)
-                               .transition().duration(200)
-                               .attr("transform", "scale(1.3)");
-                        
-                            tooltip.transition().duration(200).style("opacity", 1);
-                            tooltip.html(`<strong>${d3.timeFormat("%A")(d.Date)}</strong><br/>${d.Cups} servings`)
-                                   .style("left", (event.pageX + 15) + "px")
-                                   .style("top", (event.pageY - 20) + "px");
-                        })
-                        .on("mouseout", function(event, d) {
-                            const rect = d3.select(this);
-                            const gridX = d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize;
-                            const gridY = d.Date.getDay() * cellSize;
-                        
-                            rect.transition().duration(200)
-                                .attr("width", cellSize - 2)
-                                .attr("height", cellSize - 2)
-                                .attr("x", gridX)
-                                .attr("y", gridY)
-                                .style("stroke", "#eee")
-                                .style("stroke-width", "1px")
-                                .style("filter", "none");
-                        
-                            svg.selectAll(".mug-image")
-                               .filter(m => m.Date === d.Date)
-                               .transition().duration(200)
-                               .attr("transform", "scale(1)");
-                        
-                            tooltip.transition().duration(200).style("opacity", 0);
-                        });
+                    .on("mouseout", function(event, d) {
+                        const xPos = d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize;
+                        const yPos = d.Date.getDay() * cellSize;
+                
+                        d3.select(this).transition().duration(150)
+                            .attr("width", cellSize - 2)
+                            .attr("height", cellSize - 2)
+                            .attr("x", xPos)
+                            .attr("y", yPos)
+                            .style("stroke", "#eee")
+                            .style("stroke-width", "1px")
+                            .style("filter", "none");
+                
+                        svg.selectAll(".mug-image").filter(m => m.Date === d.Date)
+                            .transition().duration(150)
+                            .attr("transform", "scale(1)");
+                
+                        tooltip.transition().duration(300).style("opacity", 0);
+                    });
+                                    
 
                 svg.selectAll(".mug-image")
                     .data(data)
@@ -162,7 +147,7 @@
                 svg.selectAll(".day-label")
                     .data(days)
                     .join("text")
-                    .attr("x", -10)
+                    .attr("x", -5)
                     .attr("y", (d, i) => i * cellSize + 25)
                     .style("text-anchor", "end")
                     .style("font-size", "12px")
@@ -191,6 +176,7 @@
         </script>
     </body>
 </html>
+
 
 
 

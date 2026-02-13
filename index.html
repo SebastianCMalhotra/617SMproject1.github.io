@@ -2,24 +2,22 @@
 <meta charset="utf-8">
 <html>
     <head>
-        <title>Dear Data Redux V2</title>
+        <title>Dear Data Redux Visualization 2</title>
         <script src="https://d3js.org/d3.v6.js"></script>
         <style>
             body {
                 background-color: #fdfaf0;
                 font-family: 'Courier New', Courier, monospace;
                 display: flex;
-                justify-content: center;
-                padding-top: 50px;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 20px;
             }
             #chart {
                 background: white;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
                 border-radius: 8px;
-            }
-            .day-label {
-                fill: #6d4c41;
-                font-weight: bold;
+                padding: 20px;
             }
         </style>
     </head>
@@ -27,11 +25,11 @@
         <div id="chart"></div>
 
         <script>
-            const parseDate = d3.timeParse("%Y-%m-%d"); 
-            const cellSize = 50; 
+            const parseDate = d3.timeParse("%m/%d/%Y"); 
+            const cellSize = 45; 
 
-            const margin = {top: 60, right: 40, bottom: 40, left: 60},
-                  width = 900 - margin.left - margin.right,
+            const margin = {top: 80, right: 40, bottom: 60, left: 70},
+                  width = 960 - margin.left - margin.right,
                   height = 500 - margin.top - margin.bottom;
 
             const svg = d3.select("#chart")
@@ -49,54 +47,65 @@
             }).then(function(data) {
                 data = data.filter(d => d.Date !== null);
                 
-                console.log("Check da console to see if data loaded:", data);
+                if (data.length === 0) {
+                    console.error("Data loaded but dates are not parsing! Check your parseDate format.");
+                    return;
+                }
 
                 const colorScale = d3.scaleSequential()
                     .domain([0, d3.max(data, d => d.Cups)])
                     .interpolator(d3.interpolateRgb("#f5f5f5", "#3e2723"));
-                
+
                 svg.selectAll(".day-rect")
                     .data(data)
                     .join("rect")
-                    .attr("width", cellSize - 2)
-                    .attr("height", cellSize - 2)
+                    .attr("width", cellSize - 3)
+                    .attr("height", cellSize - 3)
                     .attr("x", d => d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize)
                     .attr("y", d => d.Date.getDay() * cellSize)
                     .style("fill", d => colorScale(d.Cups))
-                    .style("stroke", "#eee")
-                    .style("stroke-width", "1px");
+                    .style("stroke", "#eee");
 
                 svg.selectAll(".mug-image")
                     .data(data)
                     .join("image")
                     .attr("xlink:href", "mug.png") 
-                    .attr("width", 30)
-                    .attr("height", 30)
-                    .attr("x", d => d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize + 10)
-                    .attr("y", d => d.Date.getDay() * cellSize + 10)
-                    .style("filter", d => {
-                        const color = colorScale(d.Cups);
-                        return `drop-shadow(0 0 0 ${color}) sepia(1)`;
-                    })
+                    .attr("width", 28)
+                    .attr("height", 28)
+                    .attr("x", d => d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize + 8)
+                    .attr("y", d => d.Date.getDay() * cellSize + 8)
+                    .style("filter", d => `drop-shadow(0 0 0 ${colorScale(d.Cups)}) sepia(1)`)
                     .style("opacity", d => d.Cups > 0 ? 1 : 0.1);
 
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
                 svg.selectAll(".day-label")
                     .data(days)
                     .join("text")
-                    .attr("class", "day-label")
                     .attr("x", -10)
-                    .attr("y", (d, i) => i * cellSize + 30)
+                    .attr("y", (d, i) => i * cellSize + 25)
                     .style("text-anchor", "end")
-                    .style("font-size", "14px")
+                    .style("font-size", "12px")
                     .text(d => d);
+
+                const monthLabels = data.filter(d => d.Date.getDate() === 1 || d === data[0]);
+                svg.selectAll(".month-label")
+                    .data(monthLabels)
+                    .join("text")
+                    .attr("x", d => d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize)
+                    .attr("y", -15)
+                    .style("font-size", "14px")
+                    .style("font-weight", "bold")
+                    .text(d => d3.timeFormat("%b")(d.Date));
 
                 svg.append("text")
                     .attr("x", 0)
-                    .attr("y", -20)
-                    .style("font-size", "20px")
+                    .attr("y", -50)
+                    .style("font-size", "22px")
                     .style("text-decoration", "underline")
                     .text("Caffeine Consumption Heatmap");
+
+            }).catch(err => {
+                console.error("CSV loading failed. Check the filename!", err);
             });
         </script>
     </body>

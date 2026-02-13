@@ -22,6 +22,7 @@
         </style>
     </head>
     <body>
+        <div id="tooltip" style="position: absolute; opacity: 0; background: #3e2723; color: white; padding: 8px; border-radius: 4px; pointer-events: none; font-size: 12px; z-index: 10;"></div>
         <div id="chart"></div>
 
         <script>
@@ -67,16 +68,40 @@
                     .style("fill", d => colorScale(d.Cups))
                     .style("stroke", "#eee");
 
+                const tooltip = d3.select("#tooltip");
+
                 svg.selectAll(".mug-image")
                     .data(data)
                     .join("image")
-                    .attr("xlink:href", "mug.png") 
-                    .attr("width", 28)
-                    .attr("height", 28)
-                    .attr("x", d => d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize + 8)
-                    .attr("y", d => d.Date.getDay() * cellSize + 8)
+                    .attr("class", "mug-image")
+                    .attr("xlink:href", "mug.png")
+                    .attr("width", d => 15 + (d.Cups * 4)) 
+                    .attr("height", d => 15 + (d.Cups * 4))
+                    .attr("x", d => {
+                        const xPos = d3.timeWeek.count(d3.timeYear(d.Date), d.Date) * cellSize;
+                        const size = 15 + (d.Cups * 4);
+                        return xPos + (cellSize / 2) - (size / 2);
+                    })
+                    .attr("y", d => {
+                        const yPos = d.Date.getDay() * cellSize;
+                        const size = 15 + (d.Cups * 4);
+                        return yPos + (cellSize / 2) - (size / 2);
+                    })
                     .style("filter", d => `drop-shadow(0 0 0 ${colorScale(d.Cups)}) sepia(1)`)
-                    .style("opacity", d => d.Cups > 0 ? 1 : 0.1);
+                    .style("opacity", d => d.Cups > 0 ? 1 : 0.1)
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event, d) {
+                        d3.select(this).transition().duration(100).attr("transform", "scale(1.2)");
+                        
+                        tooltip.transition().duration(200).style("opacity", .9);
+                        tooltip.html(`${d3.timeFormat("%B %d")(d.Date)}<br/>${d.Cups} Cups`)
+                               .style("left", (event.pageX + 10) + "px")
+                               .style("top", (event.pageY - 28) + "px");
+                    })
+                    .on("mouseout", function() {
+                        d3.select(this).transition().duration(100).attr("transform", "scale(1)");
+                        tooltip.transition().duration(500).style("opacity", 0);
+                    });
 
                 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
                 svg.selectAll(".day-label")
@@ -111,4 +136,5 @@
         </script>
     </body>
 </html>
+
 

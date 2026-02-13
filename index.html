@@ -40,8 +40,9 @@
                 .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
             d3.csv("DearDataRedux - Question2.csv", function(d){
+                const dateWithYear = d["Date"] + "/2026";
                 return {
-                    Date: parseDate(d["Date"]), 
+                    Date: parseDate(dateWithYear), 
                     Cups: +d["Cups"] 
                 };
             }).then(function(data) {
@@ -110,3 +111,4 @@
         </script>
     </body>
 </html>
+

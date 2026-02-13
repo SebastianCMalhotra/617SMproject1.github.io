@@ -43,17 +43,26 @@
                 svg.append("g")
                     .call(d3.axisLeft(y));  
 
-                svg.append('g')
+                const colorScale = d3.scaleSequential()
+                    .domain([0, d3.max(data, d => d.Cups)])
+                    .interpolator(d3.interpolateRgb("#f3e5f5", "#4e342e"));
+
+               svg.append('g')
                     .selectAll("image")
                     .data(data)
                     .join("image")
                         .attr("xlink:href", "mug.png")
-                        .attr("x", d => x(d.Date) - 15) 
-                        .attr("y", d => y(d.Cups) - 15)
-                        .attr("width", 30) 
-                        .attr("height", 30);
+                        .attr("x", d => x(d.Date) - 20) 
+                        .attr("y", height / 2) 
+                        .attr("width", 40) 
+                        .attr("height", 40)
+                        .style("filter", d => {
+                            const color = colorScale(d.Cups);
+                            return `drop-shadow(0 0 0 ${color}) saturate(2) sepia(1)`;
+                        });
                 });
         </script>
     </body>
 </html>
+
 
